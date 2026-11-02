@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Life OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07071a;--pan:#0f0f26;--card:#161632;--card2:#1d1d3e;--bdr:#22224a;--bdr2:#32326a;--gold:#f0bc52;--coral:#e87060;--mint:#4ec898;--blue:#5888e0;--pur:#9068d8;--tx:#eee8de;--soft:#8080b0;--dim:#2e2e58}
+html,body{height:100%;background:var(--bg);font-family:'Lora',Georgia,serif;color:var(--tx);overflow:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+button,input,textarea,select{font-family:'Lora',Georgia,serif}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+
+#wrap{display:flex;height:100vh;flex-direction:column}
+#topbar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);flex-shrink:0;background:#0a0a1e;height:56px}
+#middle{display:flex;flex:1;overflow:hidden}
+#side{width:185px;background:#0a0a1e;border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#subhdr{padding:12px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#body{flex:1;overflow-y:auto;padding:20px}
+
+#topbrand{padding:0 16px;border-right:1px solid var(--bdr);height:100%;display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:185px}
+.tbname{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold)}
+.tbdate{font-size:10px;color:var(--dim)}
+
+#topmusic{flex:1;display:flex;align-items:center;gap:12px;padding:0 16px;overflow:hidden}
+#tpNoTrack{color:var(--dim);font-size:12px;font-style:italic}
+#tpTrackName{color:var(--tx);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:none}
+.tp-ctrl{background:none;border:none;cursor:pointer;color:var(--soft);font-size:18px;padding:4px;transition:color .15s;flex-shrink:0}
+.tp-ctrl:hover{color:var(--gold)}
+#tpPlayBtn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--coral));color:#180800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 10px rgba(240,188,82,.3)}
+#tpSeekWrap{flex:1;display:flex;align-items:center;gap:8px;min-width:80px}
+.tptime{font-size:11px;color:var(--dim);flex-shrink:0}
+
+#topright{padding:0 14px;border-left:1px solid var(--bdr);height:100%;display:flex;align-items:center;gap:10px;flex-shrink:0}
+#topUserName{font-size:13px;color:var(--soft)}
+.lkbtn{padding:7px 12px;background:transparent;border:1px solid var(--bdr);border-radius:7px;color:var(--dim);cursor:pointer;font-size:12px;white-space:nowrap}
+.lkbtn:hover{color:var(--soft)}
+
+.navs{flex:1;padding:8px 0;overflow-y:auto}
+.ndiv{height:1px;background:var(--bdr);margin:6px 10px}
+.nb{width:100%;padding:9px 14px;background:transparent;border:none;border-left:3px solid transparent;color:var(--soft);cursor:pointer;display:flex;align-items:center;gap:9px;font-size:13px;text-align:left;transition:all .15s}
+.nb:hover{color:var(--tx)}
+.nb.on{color:var(--gold);background:rgba(240,188,82,.09);border-left-color:var(--gold)}
+.ni{width:16px;text-align:center;flex-shrink:0}
+
+.ptitle{font-family:'Playfair Display',serif;font-size:19px}
+.tvtabs{display:flex;gap:3px;background:var(--pan);border-radius:9px;padding:3px;border:1px solid var(--bdr)}
+.tvt{padding:5px 11px;border-radius:6px;border:none;cursor:pointer;font-size:12px;background:transparent;color:var(--soft);transition:all .15s}
+.tvt.on{background:var(--card);color:var(--gold);font-weight:600}
+
+.sec{display:none}.sec.on{display:block;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:10px;transition:background .15s}
+.card:hover{background:var(--card2)}
+.inp{background:var(--pan);border:1px solid var(--bdr);border-radius:8px;color:var(--tx);padding:9px 13px;font-size:14px;outline:none;width:100%}
+.inp:focus{border-color:var(--bdr2)}
+textarea.inp{resize:vertical;line-height:1.7}
+.btn{border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;padding:9px 17px;font-size:13px;white-space:nowrap}
+.bp{background:linear-gradient(135deg,var(--gold),var(--coral));color:#180800}
+.bg2{background:transparent;color:var(--soft);border:1px solid var(--bdr)}
+.bg2:hover{color:var(--tx);border-color:var(--soft)}
+.bsm{padding:6px 11px;font-size:12px}
+.xb{width:32px;height:32px;border-radius:7px;border:2px solid var(--bdr);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--dim);transition:all .2s;flex-shrink:0}
+.xb.dn{border-color:var(--gold);background:rgba(240,188,82,.15);color:var(--gold)}
+.pbar{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden;margin:5px 0}
+.pbf{height:100%;border-radius:3px;transition:width .4s}
+.f1{flex:1}
+.delbtn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:17px;padding:0 3px;line-height:1}
+.delbtn:hover{color:var(--coral)}
+.addrow{display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.grid4{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:20px}
+.scard{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;text-align:center}
+.sval{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
+.slbl{font-size:13px;font-weight:600;margin-top:3px}
+.ssub{font-size:11px;color:var(--soft);margin-top:2px}
+.empty{color:var(--soft);text-align:center;padding:50px;font-size:14px}
+.badge{border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;border:1px solid}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:10px}
+.calhdr{font-size:9px;color:var(--dim);text-align:center;padding-bottom:2px}
+.calday{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px}
+
+/* LOGIN SCREENS */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-wrap{width:400px;text-align:center}
+.lic{font-size:50px;color:var(--gold);margin-bottom:10px}
+.ltitle{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold);margin-bottom:6px}
+.lsub{color:var(--soft);font-size:14px;margin-bottom:28px}
+.lcard{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:22px;text-align:left}
+.llbl{color:var(--soft);font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:7px}
+.lerr{color:#e07070;font-size:13px;margin:7px 0;display:none}
+
+/* USER CARDS */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:18px}
+.user-card{background:var(--pan);border:1px solid var(--bdr);border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.user-card:hover{border-color:var(--gold);background:var(--card)}
+.user-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px;border:2px solid var(--bdr)}
+.user-name{font-size:13px;font-weight:600;color:var(--tx)}
+.user-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;line-height:1;display:none}
+.user-card:hover .user-del{display:block}
+.add-user-btn{background:var(--pan);border:1px dashed var(--bdr2);border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;color:var(--soft)}
+.add-user-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* PLAYLIST */
+#tpPlaylist{position:fixed;top:56px;right:14px;width:300px;background:#0e0e28;border:1px solid var(--bdr2);border-radius:0 0 12px 12px;z-index:500;max-height:280px;overflow-y:auto;display:none;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.pli{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s}
+.pli:hover{background:var(--card)}
+.pli.on{background:rgba(240,188,82,.08)}
+
+/* BOOKS */
+.bookpage{background:#0e0d1e;border:1px solid var(--bdr2);border-radius:12px;padding:28px 36px;flex:1;overflow-y:auto;line-height:1.9;word-break:break-word;white-space:pre-wrap;color:#ddd6ca}
+.booknav{display:flex;align-items:center;gap:8px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+
+/* SCHEDULE */
+.time-block{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.time-block:hover{background:var(--card2)}
+.time-label{font-size:12px;color:var(--gold);font-weight:600;min-width:48px;flex-shrink:0}
+.time-cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tip-card{border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid}
+.tip-icon{font-size:22px;margin-bottom:8px}
+.tip-title{font-weight:700;font-size:14px;margin-bottom:6px}
+.tip-body{font-size:13px;line-height:1.7;color:var(--soft)}
+
+.shead{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);margin-bottom:12px}
+.smsg{font-size:13px;margin-top:8px;display:none}
+
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800;display:none;align-items:center;justify-content:center}
+#modal.open{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--bdr2);border-radius:16px;padding:28px;width:340px}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-bottom:18px}
+
+@media(max-width:600px){
+  #topbrand{min-width:auto;padding:0 10px}
+  .tbdate{display:none}
+  #side{width:44px}
+  .nb span:last-child{display:none}
+  .nb{justify-content:center;padding:10px}
+  #tpVol{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="lic">✦</div>
+    <div class="ltitle" id="loginAppTitle">Life OS</div>
+    <div class="lsub" id="loginSub">Select your profile</div>
+
+    <!-- PROFILE SELECT -->
+    <div id="loginStep1">
+      <div class="user-grid" id="userGrid"></div>
+      <button class="add-user-btn" onclick="showCreateUser()" style="width:100%;padding:14px;border:1px dashed var(--bdr2);border-radius:12px;font-size:14px;cursor:pointer;background:var(--pan);color:var(--soft)">+ Create New Profile</button>
+    </div>
+
+    <!-- PASSWORD STEP -->
+    <div id="loginStep2" style="display:none">
+      <div class="lcard">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div id="loginUserAvatar" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid var(--bdr)"></div>
+          <div>
+            <div id="loginUserName" style="font-size:16px;font-weight:600;color:var(--tx)"></div>
+            <button onclick="backToProfiles()" style="font-size:12px;color:var(--soft);background:none;border:none;cursor:pointer;padding:0">← Change profile</button>
+          </div>
+        </div>
+        <label class="llbl">Password</label>
+        <input class="inp" id="pwInp" type="password" placeholder="Enter your password…" style="margin-bottom:10px">
+        <div class="lerr" id="pwErr">Incorrect password</div>
+        <button class="btn bp" style="width:100%;margin-top:6px" onclick="doLogin()">Enter ✦</button>
+      </div>
+    </div>
+
+    <!-- CREATE USER -->
+    <div id="loginStep3" style="display:none">
+      <div class="lcard">
+        <div class="modal-title" style="margin-bottom:16px">New Profile</div>
+        <label class="llbl">Name</label>
+        <input class="inp" id="newUserName" placeholder="Your name…" style="margin-bottom:12px">
+        <label class="llbl">Pick an Avatar</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="avatarPicker"></div>
+        <label class="llbl">Password</label>
+        <input class="inp" id="newUserPw" type="password" placeholder="Create a password…" style="margin-bottom:8px">
+        <input class="inp" id="newUserPw2" type="password" placeholder="Confirm password…" style="margin-bottom:12px">
+        <div class="lerr" id="createErr"></div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn bg2 f1" onclick="backToProfiles()">Cancel</button>
+          <button class="btn bp f1" onclick="createUser()">Create Profile ✦</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="wrap" style="display:none">
+  <div id="topbar">
+    <div id="topbrand">
+      <div>
+        <div class="tbname" id="topAppName">Life OS</div>
+        <div class="tbdate" id="topDate"></div>
+      </div>
+    </div>
+    <div id="topmusic">
+      <audio id="aud"></audio>
+      <button class="tp-ctrl" onclick="prevTrack()">⏮</button>
+      <button id="tpPlayBtn" onclick="togglePlay()">▶</button>
+      <button class="tp-ctrl" onclick="nextTrack()">⏭</button>
+      <div id="tpNoTrack">No music — upload ♪</div>
+      <div id="tpTrackName"></div>
+      <div id="tpSeekWrap">
+        <span class="tptime" id="tpCur">0:00</span>
+        <input type="range" id="tpSeek" min="0" max="100" value="0" oninput="seekAudio()" style="flex:1;accent-color:var(--gold);cursor:pointer">
+        <span class="tptime" id="tpDur">0:00</span>
+      </div>
+      <input type="range" id="tpVol" min="0" max="1" step=".01" value=".8" oninput="document.getElementById('aud').volume=this.value" style="width:70px;accent-color:var(--soft);cursor:pointer">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid var(--bdr);border-radius:8px;color:var(--soft);font-size:12px;white-space:nowrap;transition:all .15s" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='var(--bdr)';this.style.color='var(--soft)'">
+        <input type="file" accept="audio/*" multiple style="display:none" onchange="uploadTracks(this)">♪ Upload
+      </label>
+      <button class="tp-ctrl" onclick="togglePlaylist()" style="border:1px solid var(--bdr);border-radius:7px;padding:5px 9px;font-size:12px;color:var(--soft)">▤ List</button>
+    </div>
+    <div id="topright">
+      <div id="topUserBadge" style="display:flex;align-items:center;gap:8px;padding:0 6px;border-left:1px solid var(--bdr);height:100%">
+        <div id="topAvatarDisp" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:1px solid var(--bdr)"></div>
+        <span id="topUserName" style="font-size:13px;color:var(--soft)"></span>
+      </div>
+      <button class="lkbtn" onclick="doLock()" style="margin-left:10px">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div id="tpPlaylist" style="position:fixed;top:56px;right:14px;width:300px;background:#0e0e28;border:1px solid var(--bdr2);border-radius:0 0 12px 12px;z-index:500;max-height:280px;overflow-y:auto;display:none;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+    <div style="padding:10px 14px;border-bottom:1px solid var(--bdr);color:var(--soft);font-size:11px;letter-spacing:.07em;text-transform:uppercase">Playlist</div>
+    <div id="tpPlList"></div>
+  </div>
+
+  <div id="middle">
+    <div id="side">
+      <div class="navs">
+        <button class="nb on" onclick="goSec('dash',this)"><span class="ni">◈</span><span>Dashboard</span></button>
+        <button class="nb" onclick="goSec('schedule',this)"><span class="ni">🗓</span><span>Schedule</span></button>
+        <div class="ndiv"></div>
+        <button class="nb" onclick="goSec('chores',this)"><span class="ni">✦</span><span>Chores</span></button>
+        <button class="nb" onclick="goSec('habits',this)"><span class="ni">◉</span><span>Habits</span></button>
+        <button class="nb" onclick="goSec('goals',this)"><span class="ni">◎</span><span>Goals</span></button>
+        <button class="nb" onclick="goSec('tasks',this)"><span class="ni">❑</span><span>Tasks</span></button>
+        <div class="ndiv"></div>
+        <button class="nb" onclick="goSec('books',this)"><span class="ni">❧</span><span>Books</span></button>
+        <div class="ndiv"></div>
+        <button class="nb" onclick="goSec('settings',this)"><span class="ni">⚙</span><span>Settings</span></button>
+      </div>
+    </div>
+
+    <div id="main">
+      <div id="subhdr">
+        <div class="ptitle" id="pageTitle">Dashboard</div>
+        <div class="tvtabs" id="tvTabs" style="display:none">
+          <button class="tvt on" onclick="setTV('daily',this)">Daily</button>
+          <button class="tvt" onclick="setTV('monthly',this)">Monthly</button>
+          <button class="tvt" onclick="setTV('yearly',this)">Yearly</button>
+        </div>
+      </div>
+      <div id="body">
+
+        <div id="sec-dash" class="sec on">
+          <p id="dashGreet" style="color:var(--soft);margin-bottom:18px;font-size:15px"></p>
+          <div class="grid4" id="dashStats"></div>
+          <div id="dashHabits"></div>
+          <div id="dashGoals"></div>
+        </div>
+
+        <div id="sec-schedule" class="sec">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+            <div>
+              <div class="card" style="margin-bottom:14px">
+                <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);margin-bottom:14px">Build Your Day</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <div style="display:flex;gap:9px">
+                    <input class="inp" id="schTime" type="time" style="width:110px;flex-shrink:0">
+                    <input class="inp f1" id="schTask" placeholder="What are you doing?" onkeydown="if(event.key==='Enter')addBlock()">
+                  </div>
+                  <div style="display:flex;gap:9px;align-items:center">
+                    <select class="inp f1" id="schCat">
+                      <option value="morning">🌅 Morning Routine</option>
+                      <option value="focus">🎯 Deep Focus</option>
+                      <option value="break">☕ Break</option>
+                      <option value="movement">🏃 Movement</option>
+                      <option value="meals">🍽 Meals</option>
+                      <option value="social">👥 Social</option>
+                      <option value="wind">🌙 Wind Down</option>
+                      <option value="free">✨ Free Time</option>
+                    </select>
+                    <input class="inp" id="schDur" type="number" min="5" max="240" value="30" style="width:80px">
+                    <button class="btn bp" onclick="addBlock()">Add</button>
+                  </div>
+                </div>
+              </div>
+              <div style="color:var(--soft);font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px">Today's Schedule</div>
+              <div id="scheduleList"></div>
+              <div id="schedEmpty" class="empty" style="padding:30px">No blocks yet — build your day above!</div>
+            </div>
+            <div style="overflow-y:auto;max-height:calc(100vh - 200px)">
+              <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--pur);margin-bottom:14px">ADHD & Habit Guidance ✦</div>
+              <div class="tip-card" style="background:rgba(144,104,216,.08);border-color:rgba(144,104,216,.25)"><div class="tip-icon">🧠</div><div class="tip-title" style="color:var(--pur)">How ADHD Affects Habits</div><div class="tip-body">ADHD brains struggle with time blindness, task initiation, and working memory — not willpower. Your brain craves novelty and immediate rewards. The key is building systems that work <em>with</em> your brain, not against it.</div></div>
+              <div class="tip-card" style="background:rgba(240,188,82,.08);border-color:rgba(240,188,82,.25)"><div class="tip-icon">⚡</div><div class="tip-title" style="color:var(--gold)">The 2-Minute Rule</div><div class="tip-body">If a habit takes less than 2 minutes, do it immediately. Can't start? Shrink the habit to its smallest form. "Exercise" becomes "put on shoes." Starting is the hardest part — momentum does the rest.</div></div>
+              <div class="tip-card" style="background:rgba(78,200,152,.08);border-color:rgba(78,200,152,.25)"><div class="tip-icon">🔗</div><div class="tip-title" style="color:var(--mint)">Habit Stacking</div><div class="tip-body">Attach new habits to existing ones. "After I pour my morning coffee, I will write 3 intentions." This uses your existing routine as an anchor so you don't have to rely on remembering.</div></div>
+              <div class="tip-card" style="background:rgba(88,136,224,.08);border-color:rgba(88,136,224,.25)"><div class="tip-icon">⏰</div><div class="tip-title" style="color:var(--blue)">Time Blocking for ADHD</div><div class="tip-body">Try <strong>25 min focus → 5 min break</strong> (Pomodoro). Schedule your hardest tasks during peak energy hours. Most ADHD people peak mid-morning or late evening.</div></div>
+              <div class="tip-card" style="background:rgba(232,112,96,.08);border-color:rgba(232,112,96,.25)"><div class="tip-icon">🌅</div><div class="tip-title" style="color:var(--coral)">The Anchor Morning Routine</div><div class="tip-body">Keep it short (15–30 min). Suggested flow: <strong>Wake → Water → Move (5 min) → 3 priorities → Begin.</strong> Same order every day builds automatic behavior.</div></div>
+              <div class="tip-card" style="background:rgba(144,104,216,.08);border-color:rgba(144,104,216,.25)"><div class="tip-icon">🎯</div><div class="tip-title" style="color:var(--pur)">One Thing At a Time</div><div class="tip-body">Each day, pick <strong>ONE non-negotiable task</strong>. Everything else is a bonus. This prevents the "all-or-nothing" spiral where missing one thing ruins the whole day.</div></div>
+              <div class="tip-card" style="background:rgba(240,188,82,.08);border-color:rgba(240,188,82,.25)"><div class="tip-icon">🏆</div><div class="tip-title" style="color:var(--gold)">Reward Yourself Immediately</div><div class="tip-body">ADHD brains need <em>immediate</em> rewards. After completing a task, give yourself something enjoyable right away. Make the reward feel proportional and real.</div></div>
+              <div class="tip-card" style="background:rgba(78,200,152,.08);border-color:rgba(78,200,152,.25)"><div class="tip-icon">📵</div><div class="tip-title" style="color:var(--mint)">Environment Design</div><div class="tip-body">Remove friction for good habits, add friction for distractions. Your environment should do the reminding — not your brain.</div></div>
+              <div class="tip-card" style="background:rgba(232,112,96,.08);border-color:rgba(232,112,96,.25)"><div class="tip-icon">🔄</div><div class="tip-title" style="color:var(--coral)">Never Miss Twice</div><div class="tip-body">Missing once is an accident. Missing twice starts a new bad habit. When you miss, your only job is to show up the next day in the smallest possible way.</div></div>
+              <div class="tip-card" style="background:rgba(144,104,216,.08);border-color:rgba(144,104,216,.25)"><div class="tip-icon">📋</div><div class="tip-title" style="color:var(--pur)">Suggested ADHD Daily Template</div><div class="tip-body" style="line-height:2"><strong style="color:var(--tx)">6:30</strong> Wake + water + light<br><strong style="color:var(--tx)">6:45</strong> 5 min movement<br><strong style="color:var(--tx)">7:00</strong> Breakfast + meds<br><strong style="color:var(--tx)">7:30</strong> Write your ONE priority<br><strong style="color:var(--tx)">8:00</strong> Deep focus block (25 min)<br><strong style="color:var(--tx)">8:30</strong> Break + reward<br><strong style="color:var(--tx)">12:00</strong> Lunch + walk<br><strong style="color:var(--tx)">13:00</strong> Focus block 2<br><strong style="color:var(--tx)">17:00</strong> Tomorrow's 3 priorities<br><strong style="color:var(--tx)">21:00</strong> Screens off, wind down<br><strong style="color:var(--tx)">22:30</strong> Sleep</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="sec-chores" class="sec">
+          <div class="addrow"><input class="inp f1" id="choreInp" placeholder="Add a chore…" onkeydown="if(event.key==='Enter')addChore()"><button class="btn bp" onclick="addChore()">Add</button></div>
+          <div id="choreList"></div>
+        </div>
+
+        <div id="sec-habits" class="sec">
+          <div class="card" style="margin-bottom:18px">
+            <div style="font-size:15px;color:var(--tx);margin-bottom:12px;font-weight:600">New Habit</div>
+            <div class="addrow" style="margin-bottom:0">
+              <input class="inp f1" id="habitInp" placeholder="Habit name…" onkeydown="if(event.key==='Enter')addHabit()">
+              <div style="display:flex;gap:5px;align-items:center" id="habitColors"></div>
+              <button class="btn bp" onclick="addHabit()">Add</button>
+            </div>
+          </div>
+          <div id="habitList"></div>
+        </div>
+
+        <div id="sec-goals" class="sec">
+          <div style="text-align:right;margin-bottom:18px"><button class="btn bp" onclick="toggleGoalForm()">+ New Goal</button></div>
+          <div id="goalForm" style="display:none" class="card">
+            <div style="font-family:'Playfair Display',serif;color:var(--gold);margin-bottom:14px;font-size:16px">Define Your Goal</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <input class="inp" id="gTitle" placeholder="Goal title…">
+              <textarea class="inp" id="gDesc" placeholder="Description…" rows="2"></textarea>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <input class="inp f1" id="gDeadline" type="date" style="min-width:140px">
+                <select class="inp" id="gCat" style="flex:1;min-width:120px">
+                  <option value="personal">Personal</option><option value="health">Health</option>
+                  <option value="career">Career</option><option value="finance">Finance</option>
+                  <option value="education">Education</option><option value="creative">Creative</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end">
+                <button class="btn bg2 bsm" onclick="toggleGoalForm()">Cancel</button>
+                <button class="btn bp" onclick="addGoal()">Create ✦</button>
+              </div>
+            </div>
+          </div>
+          <div id="goalList"></div>
+        </div>
+
+        <div id="sec-tasks" class="sec">
+          <div class="addrow">
+            <input class="inp f1" id="taskInp" placeholder="New task…" onkeydown="if(event.key==='Enter')addTask()">
+            <div style="display:flex;gap:5px">
+              <button class="btn bsm" id="priH" onclick="setPri('high')">High</button>
+              <button class="btn bsm" id="priM" onclick="setPri('medium')">Med</button>
+              <button class="btn bsm" id="priL" onclick="setPri('low')">Low</button>
+            </div>
+            <button class="btn bp" onclick="addTask()">Add</button>
+          </div>
+          <div id="taskList"></div>
+        </div>
+
+        <div id="sec-books" class="sec">
+          <div id="bookLib">
+            <label style="display:block;border:1px dashed var(--bdr2);border-radius:12px;padding:22px;text-align:center;cursor:pointer;margin-bottom:18px">
+              <input type="file" accept=".txt,.md" style="display:none" onchange="uploadBook(this)">
+              <div style="font-size:34px;margin-bottom:8px">❧</div>
+              <div style="color:var(--gold);font-size:15px;font-weight:600">Upload a Book</div>
+              <div style="color:var(--soft);font-size:12px;margin-top:4px">.txt or .md · Saved to your library</div>
+            </label>
+            <div id="bookGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px"></div>
+          </div>
+          <div id="bookReader" style="display:none;flex-direction:column;height:calc(100vh - 160px)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+              <button class="btn bg2 bsm" onclick="closeBook()">← Library</button>
+              <span id="bookTitle" style="flex:1;font-family:'Playfair Display',serif;color:var(--gold);font-style:italic;font-size:16px"></span>
+              <div style="display:flex;gap:5px">
+                <button class="btn bg2 bsm" id="fsS" onclick="setFS('small')">Small</button>
+                <button class="btn bsm" id="fsM" style="border:1px solid var(--gold);color:var(--gold);background:transparent" onclick="setFS('medium')">Med</button>
+                <button class="btn bg2 bsm" id="fsL" onclick="setFS('large')">Large</button>
+              </div>
+              <span id="pageInfo" style="color:var(--soft);font-size:13px"></span>
+            </div>
+            <div class="bookpage" id="bookContent"></div>
+            <div class="booknav">
+              <button class="btn bg2 bsm" onclick="goPage(0)">«</button>
+              <button class="btn bg2 bsm" onclick="goPage(curPage-1)">‹</button>
+              <span style="color:var(--soft);font-size:13px;display:flex;align-items:center;gap:5px">Pg <input id="pgInp" type="number" min="1" style="width:46px;background:var(--pan);border:1px solid var(--bdr);border-radius:6px;color:var(--tx);padding:4px 6px;font-size:13px;outline:none;text-align:center" oninput="goPage(Number(this.value)-1)"> / <span id="pgTotal"></span></span>
+              <button class="btn bg2 bsm" onclick="goPage(curPage+1)">›</button>
+              <button class="btn bg2 bsm" onclick="goPage(bookPages.length-1)">»</button>
+            </div>
+            <div class="pbar" style="margin-top:10px"><div class="pbf" id="bookProg" style="background:var(--blue)"></div></div>
+            <div style="text-align:right;color:var(--dim);font-size:11px;margin-top:2px" id="bookPct"></div>
+          </div>
+        </div>
+
+        <div id="sec-settings" class="sec" style="max-width:460px">
+          <div class="card" style="margin-bottom:14px">
+            <div class="shead">App Name</div>
+            <div style="display:flex;gap:10px">
+              <input class="inp f1" id="setName" placeholder="App name…">
+              <button class="btn bp" onclick="saveName()">Save</button>
+            </div>
+            <div class="smsg" id="nameMsg" style="color:var(--mint)"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="shead">Change My Password</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <input class="inp" id="setCurPw" type="password" placeholder="Current password">
+              <input class="inp" id="setNewPw" type="password" placeholder="New password">
+              <input class="inp" id="setCfmPw" type="password" placeholder="Confirm new password">
+              <button class="btn bp" onclick="savePw()">Update Password</button>
+            </div>
+            <div class="smsg" id="pwMsg"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="shead" style="color:var(--coral)">Delete My Profile</div>
+            <p style="color:var(--soft);font-size:14px;margin-bottom:14px">Permanently delete your profile and all data.</p>
+            <button class="btn" style="background:rgba(220,60,60,.1);color:#e07070;border:1px solid rgba(220,60,60,.25)" onclick="confirmDeleteUser()">Delete Profile</button>
+          </div>
+          <div class="card">
+            <div class="shead" style="color:var(--soft)">Session</div>
+            <button class="btn bg2" onclick="doLock()">🔒 Lock App</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── MULTI-USER STORE ───────────────────────────────────────────────────────
+var STORE_KEY='lifeOS_v2';
+var AVATARS=['🦁','🐯','🦊','🐺','🐻','🦋','🌙','⭐','🌸','🔥','🌊','🎯','🎸','🌿','💎','🦅'];
+var selAvatar=AVATARS[0];
+var store={appName:'Life OS',users:[]};
+var curUser=null;
+var curUserIdx=-1;
+
+function saveStore(){try{localStorage.setItem(STORE_KEY,JSON.stringify(store));}catch(e){}}
+function loadStore(){try{var d=localStorage.getItem(STORE_KEY);if(d)store=JSON.parse(d);}catch(e){}}
+function G(id){return document.getElementById(id)}
+function tdStr(){return new Date().toISOString().slice(0,10)}
+function moStr(){return new Date().toISOString().slice(0,7)}
+function yrStr(){return String(new Date().getFullYear())}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function fmtTime(s){var m=Math.floor(s/60),sc=Math.floor(s%60);return m+':'+(sc<10?'0':'')+sc}
+function calcStreak(dates){if(!dates||!dates.length)return 0;var sorted=[...new Set(dates)].sort().reverse();var n=0,chk=tdStr();for(var d of sorted){if(d===chk){n++;var p=new Date(chk);p.setDate(p.getDate()-1);chk=p.toISOString().slice(0,10);}else break;}return n;}
+function newUserData(name,avatar,pw){return{id:uid(),name:name,avatar:avatar,pw:pw,chores:[],habits:[],goals:[],tasks:[],books:[],schedule:[]};}
+
+// ── PROFILE SELECT ─────────────────────────────────────────────────────────
+var tv='daily',curSec='dash',selHabColor='#4ec898',curPri='medium';
+var tracks=[],trackIdx=0,isPlaying=false;
+var bookPages=[],curPage=0,curFS='medium',activeBook=null;
+var plOpen=false;
+var HCOLS=['#4ec898','#f0bc52','#e87060','#5888e0','#9068d8','#e8b840'];
+var CATCOL={personal:'#f0bc52',health:'#4ec898',career:'#5888e0',finance:'#70de70',education:'#9068d8',creative:'#e87060'};
+var SCAT_COL={morning:'#f0bc52',focus:'#5888e0',break:'#4ec898',movement:'#e87060',meals:'#e8b840',social:'#9068d8',wind:'#8080b0',free:'#4ec898'};
+var TV_SECS=['chores','habits','tasks'];
+var TITLES={dash:'Dashboard',schedule:'Daily Schedule & ADHD Guide',chores:'Chores',habits:'Habits',goals:'Goals',tasks:'Tasks',books:'Book Library',settings:'Settings'};
+
+loadStore();
+G('loginAppTitle').textContent=store.appName;
+renderUserGrid();
+
+function renderUserGrid(){
+  var grid=G('userGrid');
+  if(!store.users.length){grid.innerHTML='';return;}
+  grid.innerHTML=store.users.map(function(u,i){
+    return'<div class="user-card" onclick="selectUser('+i+')">'+
+      '<button class="user-del" onclick="event.stopPropagation();deleteUserPrompt('+i+')" title="Delete">×</button>'+
+      '<div class="user-avatar" style="background:rgba(240,188,82,.1);border-color:var(--bdr2)">'+u.avatar+'</div>'+
+      '<div class="user-name">'+u.name+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function selectUser(i){
+  curUserIdx=i;
+  G('loginStep1').style.display='none';
+  G('loginStep2').style.display='block';
+  G('loginSub').textContent='Welcome back';
+  G('loginUserName').textContent=store.users[i].name;
+  G('loginUserAvatar').textContent=store.users[i].avatar;
+  G('pwInp').value='';G('pwErr').style.display='none';
+  setTimeout(function(){G('pwInp').focus();},100);
+}
+
+function backToProfiles(){
+  G('loginStep1').style.display='block';
+  G('loginStep2').style.display='none';
+  G('loginStep3').style.display='none';
+  G('loginSub').textContent='Select your profile';
+  curUserIdx=-1;
+}
+
+function doLogin(){
+  if(curUserIdx<0)return;
+  var u=store.users[curUserIdx];
+  if(G('pwInp').value===u.pw){
+    curUser=u;
+    G('loginScreen').style.display='none';
+    G('wrap').style.display='flex';
+    G('pwInp').value='';G('pwErr').style.display='none';
+    initApp();
+  } else {G('pwErr').style.display='block';}
+}
+G('pwInp').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function showCreateUser(){
+  G('loginStep1').style.display='none';
+  G('loginStep3').style.display='block';
+  G('loginSub').textContent='Create your profile';
+  G('newUserName').value='';G('newUserPw').value='';G('newUserPw2').value='';
+  G('createErr').style.display='none';
+  selAvatar=AVATARS[0];
+  buildAvatarPicker();
+}
+
+function buildAvatarPicker(){
+  var p=G('avatarPicker');p.innerHTML='';
+  AVATARS.forEach(function(a){
+    var b=document.createElement('button');
+    b.textContent=a;
+    b.style.cssText='width:36px;height:36px;border-radius:8px;border:2px solid '+(a===selAvatar?'var(--gold)':'var(--bdr)')+';background:'+(a===selAvatar?'rgba(240,188,82,.15)':'transparent')+';cursor:pointer;font-size:18px;transition:all .15s';
+    b.onclick=function(){selAvatar=a;buildAvatarPicker();};
+    p.appendChild(b);
+  });
+}
+
+function createUser(){
+  var name=G('newUserName').value.trim(),pw=G('newUserPw').value,pw2=G('newUserPw2').value;
+  var err=G('createErr');
+  if(!name){err.textContent='Please enter a name';err.style.display='block';return;}
+  if(pw.length<3){err.textContent='Password must be at least 3 characters';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Passwords do not match';err.style.display='block';return;}
+  store.users.push(newUserData(name,selAvatar,pw));
+  saveStore();
+  renderUserGrid();
+  backToProfiles();
+}
+
+function deleteUserPrompt(i){
+  if(confirm('Delete profile "'+store.users[i].name+'"? All data will be lost.')){
+    store.users.splice(i,1);saveStore();renderUserGrid();
+  }
+}
+
+function doLock(){
+  G('wrap').style.display='none';
+  G('loginScreen').style.display='flex';
+  backToProfiles();
+  curUser=null;curUserIdx=-1;
+  isPlaying=false;G('aud').pause();G('tpPlayBtn').textContent='▶';
+}
+
+// ── INIT APP ───────────────────────────────────────────────────────────────
+function initApp(){
+  G('topAppName').textContent=store.appName;
+  G('topDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  G('topUserName').textContent=curUser.name;
+  G('topAvatarDisp').textContent=curUser.avatar;
+  G('setName').value=store.appName;
+  buildHabColors();setPri('medium');
+  goSec('dash',document.querySelector('.nb.on'));
+}
+
+function buildHabColors(){var c=G('habitColors');c.innerHTML='';HCOLS.forEach(function(col){var b=document.createElement('button');b.style.cssText='width:20px;height:20px;border-radius:50%;background:'+col+';border:'+(col===selHabColor?'3px solid white':'2px solid transparent')+';cursor:pointer;outline:none;flex-shrink:0';b.onclick=function(){selHabColor=col;buildHabColors();};c.appendChild(b);});}
+
+function goSec(id,btn){
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
+  G('sec-'+id).classList.add('on');
+  G('pageTitle').textContent=TITLES[id]||id;
+  G('tvTabs').style.display=TV_SECS.includes(id)?'flex':'none';
+  curSec=id;
+  if(id==='dash')renderDash();if(id==='chores')renderChores();if(id==='habits')renderHabits();
+  if(id==='goals')renderGoals();if(id==='tasks')renderTasks();if(id==='books')renderBooks();
+  if(id==='schedule')renderSchedule();if(id==='settings'){G('setName').value=store.appName;}
+  closePL();
+}
+function setTV(v,btn){tv=v;document.querySelectorAll('.tvt').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');if(curSec==='chores')renderChores();if(curSec==='habits')renderHabits();if(curSec==='tasks')renderTasks();}
+
+// ── MUSIC ──────────────────────────────────────────────────────────────────
+var aud=G('aud');
+aud.addEventListener('timeupdate',function(){if(!aud.duration)return;G('tpSeek').value=(aud.currentTime/aud.duration)*100;G('tpCur').textContent=fmtTime(aud.currentTime);G('tpDur').textContent=fmtTime(aud.duration);});
+aud.addEventListener('ended',function(){nextTrack();});
+document.addEventListener('click',function(e){if(plOpen&&!G('tpPlaylist').contains(e.target)&&!e.target.textContent.includes('▤'))closePL();});
+function uploadTracks(inp){Array.from(inp.files).forEach(function(f){tracks.push({id:uid(),name:f.name.replace(/\.[^.]+$/,''),url:URL.createObjectURL(f)});});renderTPList();if(tracks.length===1)loadTrack(0);G('tpNoTrack').style.display='none';G('tpTrackName').style.display='block';}
+function loadTrack(i){trackIdx=i;aud.src=tracks[i].url;G('tpTrackName').textContent=tracks[i].name;G('tpSeek').value=0;G('tpCur').textContent='0:00';G('tpDur').textContent='0:00';if(isPlaying)aud.play();renderTPList();}
+function togglePlay(){if(!tracks.length)return;if(!aud.src&&tracks[trackIdx])aud.src=tracks[trackIdx].url;if(isPlaying){aud.pause();isPlaying=false;G('tpPlayBtn').textContent='▶';}else{aud.play();isPlaying=true;G('tpPlayBtn').textContent='⏸';}}
+function nextTrack(){if(!tracks.length)return;loadTrack((trackIdx+1)%tracks.length);if(isPlaying)aud.play();}
+function prevTrack(){if(!tracks.length)return;loadTrack((trackIdx-1+tracks.length)%tracks.length);if(isPlaying)aud.play();}
+function seekAudio(){if(aud.duration)aud.currentTime=(G('tpSeek').value/100)*aud.duration;}
+function togglePlaylist(){plOpen=!plOpen;G('tpPlaylist').style.display=plOpen?'block':'none';}
+function closePL(){plOpen=false;G('tpPlaylist').style.display='none';}
+function renderTPList(){var pl=G('tpPlList');if(!tracks.length){pl.innerHTML='<div style="padding:12px 14px;color:var(--dim);font-size:13px">No tracks yet</div>';return;}pl.innerHTML=tracks.map(function(t,i){return'<div class="pli '+(i===trackIdx?'on':'')+'" onclick="loadTrack('+i+');if(!isPlaying)togglePlay();closePL()"><span style="color:'+(i===trackIdx?'var(--gold)':'var(--dim)')+';width:20px;text-align:center;font-size:12px">'+(i===trackIdx&&isPlaying?'▶':String(i+1))+'</span><span style="flex:1;font-size:13px;color:'+(i===trackIdx?'var(--gold)':'var(--tx)')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t.name+'</span><button onclick="event.stopPropagation();tracks.splice('+i+',1);if(trackIdx>=tracks.length)trackIdx=Math.max(0,tracks.length-1);renderTPList()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:15px;padding:0 4px">×</button></div>';}).join('');}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDash(){
+  var td=tdStr();
+  var doneC=curUser.chores.filter(function(c){return c.dates&&c.dates.includes(td);}).length;
+  var strks=curUser.habits.map(function(h){return calcStreak(h.dates);}).filter(function(s){return s>0;}).length;
+  var pendT=curUser.tasks.filter(function(t){return !t.done&&t.date===td;}).length;
+  var avgG=curUser.goals.length?Math.round(curUser.goals.reduce(function(a,g){return a+(g.prog||0);},0)/curUser.goals.length):0;
+  var hr=new Date().getHours();
+  G('dashGreet').textContent='Good '+(hr<12?'morning':hr<17?'afternoon':'evening')+', '+curUser.name+' ✦  '+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  var stats=[{ic:'✦',val:doneC+'/'+curUser.chores.length,lbl:'Chores Done',sub:curUser.chores.length?Math.round(doneC/(curUser.chores.length||1)*100)+'% today':'None yet',col:'var(--gold)'},{ic:'◉',val:strks,lbl:'Streaks',sub:curUser.habits.length+' habits',col:'var(--mint)'},{ic:'◎',val:avgG+'%',lbl:'Avg Goal',sub:curUser.goals.length+' goals',col:'var(--blue)'},{ic:'❑',val:pendT,lbl:'Tasks Today',sub:pendT===0?'All clear!':'pending',col:'var(--coral)'}];
+  G('dashStats').innerHTML=stats.map(function(s){return'<div class="scard"><div style="font-size:24px;color:'+s.col+';margin-bottom:5px">'+s.ic+'</div><div class="sval" style="color:'+s.col+'">'+s.val+'</div><div class="slbl">'+s.lbl+'</div><div class="ssub">'+s.sub+'</div></div>';}).join('');
+  var hh=G('dashHabits');if(curUser.habits.length){hh.innerHTML='<div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:12px">Today\'s Habits</div>'+curUser.habits.slice(0,5).map(function(h){var dn=h.dates&&h.dates.includes(td);var s=calcStreak(h.dates);return'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:9px;height:9px;border-radius:50%;background:'+(dn?h.color:'var(--bdr)')+'"></div><span style="flex:1;font-size:14px;color:'+(dn?'var(--tx)':'var(--soft)')+';text-decoration:'+(dn?'line-through':'none')+'">'+h.name+'</span>'+(s>0?'<span style="font-size:12px;color:var(--gold)">'+s+'🔥</span>':'')+'</div>';}).join('')+'</div>';}else hh.innerHTML='';
+  var gh=G('dashGoals');if(curUser.goals.length){gh.innerHTML='<div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:12px">Goals</div>'+curUser.goals.slice(0,4).map(function(g){return'<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px">'+g.title+'</span><span style="color:var(--gold);font-size:12px">'+g.prog+'%</span></div><div class="pbar"><div class="pbf" style="width:'+g.prog+'%;background:var(--blue)"></div></div></div>';}).join('')+'</div>';}else gh.innerHTML='';
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────────────────
+function addBlock(){var time=G('schTime').value,task=G('schTask').value.trim(),cat=G('schCat').value,dur=G('schDur').value;if(!task)return;curUser.schedule.push({id:uid(),time:time||'',task:task,cat:cat,dur:Number(dur)||30,date:tdStr()});curUser.schedule.sort(function(a,b){return a.time.localeCompare(b.time);});G('schTask').value='';saveStore();renderSchedule();}
+function delBlock(id){curUser.schedule=curUser.schedule.filter(function(b){return b.id!==id;});saveStore();renderSchedule();}
+function renderSchedule(){var td=tdStr();var items=curUser.schedule.filter(function(b){return b.date===td;});var list=G('scheduleList'),emp=G('schedEmpty');if(!items.length){list.innerHTML='';emp.style.display='block';return;}emp.style.display='none';list.innerHTML=items.map(function(b){var col=SCAT_COL[b.cat]||'var(--soft)';return'<div class="time-block"><div class="time-label">'+(b.time||'--:--')+'</div><div class="time-cat-dot" style="background:'+col+'"></div><div class="f1"><div style="font-size:14px">'+b.task+'</div><div style="font-size:11px;color:var(--soft);margin-top:2px">'+b.cat+' · '+b.dur+' min</div></div><button class="delbtn" onclick="delBlock(\''+b.id+'\')">×</button></div>';}).join('');}
+
+// ── CHORES ────────────────────────────────────────────────────────────────
+function addChore(){var v=G('choreInp').value.trim();if(!v)return;curUser.chores.push({id:uid(),text:v,dates:[],created:tdStr()});G('choreInp').value='';saveStore();renderChores();}
+function togChore(id){var td=tdStr();curUser.chores=curUser.chores.map(function(c){if(c.id!==id)return c;var ds=c.dates||[];return Object.assign({},c,{dates:ds.includes(td)?ds.filter(function(d){return d!==td;}):[...ds,td]});});saveStore();renderChores();}
+function delChore(id){curUser.chores=curUser.chores.filter(function(c){return c.id!==id;});saveStore();renderChores();}
+function renderChores(){
+  var td=tdStr(),mo=moStr(),yr=yrStr(),list=G('choreList');
+  var items=curUser.chores;
+  if(tv==='monthly')items=curUser.chores.filter(function(c){return(c.created&&c.created.startsWith(mo))||(c.dates&&c.dates.some(function(d){return d.startsWith(mo);}));});
+  if(tv==='yearly'){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var html='';months.forEach(function(m,i){var mo2=yr+'-'+(i+1<10?'0':'')+String(i+1);var its=curUser.chores.filter(function(c){return c.dates&&c.dates.some(function(d){return d.startsWith(mo2);});});if(!its.length)return;html+='<div style="margin-bottom:18px"><div style="color:var(--gold);font-family:\'Playfair Display\',serif;font-size:15px;margin-bottom:8px">'+m+' '+yr+'</div>';its.forEach(function(c){html+=choreHTML(c,c.dates.includes(td),c.dates.filter(function(d){return d.startsWith(mo2);}).length);});html+='</div>';});list.innerHTML=html||'<div class="empty">No completions this year yet.</div>';return;}
+  if(!items.length){list.innerHTML='<div class="empty">No chores yet — add one!</div>';return;}
+  list.innerHTML=items.map(function(c){var done=c.dates&&c.dates.includes(td);return choreHTML(c,done,tv==='monthly'?c.dates.filter(function(d){return d.startsWith(mo);}).length:0);}).join('');
+  if(tv==='daily'&&curUser.chores.length){var d2=curUser.chores.filter(function(c){return c.dates&&c.dates.includes(td);}).length;list.innerHTML+='<div style="color:var(--soft);font-size:13px;text-align:right;margin-top:8px">'+d2+'/'+curUser.chores.length+' done today</div>';}
+}
+function choreHTML(c,done,cnt){return'<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:8px"><button class="xb '+(done?'dn':'')+'" onclick="togChore(\''+c.id+'\')">'+(done?'✕':'')+'</button><span class="f1" style="font-size:15px;color:'+(done?'var(--soft)':'var(--tx)')+';text-decoration:'+(done?'line-through':'none')+'">'+c.text+'</span>'+(cnt?'<span style="color:var(--dim);font-size:12px">'+cnt+'×</span>':'')+(done?'<span style="color:var(--gold);font-size:12px">✕ Done</span>':'')+'<button class="delbtn" onclick="delChore(\''+c.id+'\')">×</button></div>';}
+
+// ── HABITS ────────────────────────────────────────────────────────────────
+function addHabit(){var v=G('habitInp').value.trim();if(!v)return;curUser.habits.push({id:uid(),name:v,color:selHabColor,dates:[],created:tdStr()});G('habitInp').value='';saveStore();renderHabits();}
+function togHabit(id){var td=tdStr();curUser.habits=curUser.habits.map(function(h){if(h.id!==id)return h;var ds=h.dates||[];return Object.assign({},h,{dates:ds.includes(td)?ds.filter(function(d){return d!==td;}):[...ds,td]});});saveStore();renderHabits();}
+function delHabit(id){curUser.habits=curUser.habits.filter(function(h){return h.id!==id;});saveStore();renderHabits();}
+function renderHabits(){
+  var td=tdStr(),yr=yrStr(),list=G('habitList');
+  if(!curUser.habits.length){list.innerHTML='<div class="empty">No habits yet!</div>';return;}
+  var isGrid=tv==='monthly';
+  list.innerHTML='<div style="'+(isGrid?'display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px':'')+'">'+curUser.habits.map(function(h){
+    var done=h.dates&&h.dates.includes(td);var s=calcStreak(h.dates);var tot=h.dates?h.dates.length:0;var extra='';
+    if(tv==='monthly'){var now=new Date();var dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();var first=new Date(now.getFullYear(),now.getMonth(),1).getDay();var days=['S','M','T','W','T','F','S'];extra='<div class="calgrid">'+days.map(function(d){return'<div class="calhdr">'+d+'</div>';}).join('')+Array(first).fill('<div></div>').join('')+Array.from({length:dim},function(_,i){var iso=now.getFullYear()+'-'+(now.getMonth()+1<10?'0':'')+String(now.getMonth()+1)+'-'+(i+1<10?'0':'')+String(i+1);var dn=h.dates&&h.dates.includes(iso);return'<div class="calday" style="background:'+(dn?h.color:'var(--bdr)')+';opacity:'+(dn?'1':'.3')+';color:'+(dn?'#fff':'var(--dim)')+';">'+(dn?'✕':String(i+1))+'</div>';}).join('')+'</div>';}
+    if(tv==='yearly'){var cnt2=h.dates?h.dates.filter(function(d){return d.startsWith(yr);}).length:0;extra='<div style="margin-top:10px"><div style="color:var(--soft);font-size:12px;margin-bottom:4px">This year: <span style="color:'+h.color+'">'+cnt2+' days</span></div><div class="pbar"><div class="pbf" style="width:'+(cnt2/365*100).toFixed(1)+'%;background:'+h.color+'"></div></div></div>';}
+    return'<div class="card" style="border-left:4px solid '+h.color+'"><div style="display:flex;align-items:center;gap:10px"><button class="xb '+(done?'dn':'')+'" onclick="togHabit(\''+h.id+'\')">'+(done?'✕':'')+'</button><div class="f1"><div style="font-weight:600;font-size:15px;color:'+(done?'var(--soft)':'var(--tx)')+';text-decoration:'+(done?'line-through':'none')+'">'+h.name+'</div><div style="font-size:12px;color:var(--soft);margin-top:2px;display:flex;gap:10px">'+(s>0?'<span style="color:var(--gold)">🔥 '+s+' streak</span>':'')+'<span>'+tot+' total</span></div></div><button class="delbtn" onclick="delHabit(\''+h.id+'\')">×</button></div>'+extra+'</div>';
+  }).join('')+'</div>';
+}
+
+// ── GOALS ─────────────────────────────────────────────────────────────────
+function toggleGoalForm(){var f=G('goalForm');f.style.display=f.style.display==='none'?'block':'none';}
+function addGoal(){var t=G('gTitle').value.trim();if(!t)return;curUser.goals.push({id:uid(),title:t,desc:G('gDesc').value.trim(),deadline:G('gDeadline').value,cat:G('gCat').value,prog:0,milestones:[],created:tdStr()});G('gTitle').value='';G('gDesc').value='';G('gDeadline').value='';toggleGoalForm();saveStore();renderGoals();}
+function delGoal(id){curUser.goals=curUser.goals.filter(function(g){return g.id!==id;});saveStore();renderGoals();}
+function setGoalProg(id,v){curUser.goals=curUser.goals.map(function(g){return g.id===id?Object.assign({},g,{prog:Math.min(100,Math.max(0,Number(v)))}):g;});saveStore();}
+function addMilestone(gid){var inp=G('ml-'+gid);var t=inp.value.trim();if(!t)return;curUser.goals=curUser.goals.map(function(g){return g.id===gid?Object.assign({},g,{milestones:[...(g.milestones||[]),{id:uid(),text:t,done:false}]}):g;});inp.value='';saveStore();renderGoals();}
+function togMilestone(gid,mid){curUser.goals=curUser.goals.map(function(g){return g.id===gid?Object.assign({},g,{milestones:g.milestones.map(function(m){return m.id===mid?Object.assign({},m,{done:!m.done}):m;})}):g;});saveStore();renderGoals();}
+function renderGoals(){
+  var list=G('goalList');if(!curUser.goals.length){list.innerHTML='<div class="empty">No goals yet ✦</div>';return;}
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">'+curUser.goals.map(function(g){
+    var col=CATCOL[g.cat]||'var(--gold)';var dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/86400000):null;
+    var mls=(g.milestones||[]).map(function(m){return'<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><button class="xb '+(m.done?'dn':'')+'" style="width:22px;height:22px;font-size:12px;border-radius:5px" onclick="togMilestone(\''+g.id+'\',\''+m.id+'\')">'+(m.done?'✕':'')+'</button><span style="font-size:13px;color:'+(m.done?'var(--dim)':'var(--tx)')+';text-decoration:'+(m.done?'line-through':'none')+';flex:1">'+m.text+'</span></div>';}).join('');
+    return'<div class="card" style="border-top:3px solid '+col+';display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px"><span style="font-family:\'Playfair Display\',serif;font-size:15px;font-weight:700">'+g.title+'</span><span class="badge" style="color:'+col+';border-color:'+col+'44;background:'+col+'18">'+g.cat+'</span></div>'+(g.desc?'<p style="color:var(--soft);font-size:13px;line-height:1.5">'+g.desc+'</p>':'')+'</div><button class="delbtn" onclick="delGoal(\''+g.id+'\')">×</button></div><div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--soft);font-size:12px">Progress</span><span id="gp-'+g.id+'" style="color:'+col+';font-size:13px;font-weight:700">'+g.prog+'%</span></div><div class="pbar"><div id="gb-'+g.id+'" class="pbf" style="width:'+g.prog+'%;background:'+col+'"></div></div><input type="range" min="0" max="100" value="'+g.prog+'" style="width:100%;margin-top:7px;accent-color:'+col+';cursor:pointer" oninput="setGoalProg(\''+g.id+'\',this.value);G(\'gp-'+g.id+'\').textContent=this.value+\'%\';G(\'gb-'+g.id+'\').style.width=this.value+\'%\'"></div>'+(dl!==null?'<div style="color:'+(dl<7?'var(--coral)':'var(--soft)')+';font-size:13px">'+(dl>0?'⏳ '+dl+' days left':dl===0?'🎯 Due today!':'⚠ Overdue')+'</div>':'')+'<div><div style="color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Milestones</div>'+mls+'<div style="display:flex;gap:7px;margin-top:7px"><input class="inp f1" id="ml-'+g.id+'" placeholder="Add milestone…" style="font-size:13px;padding:7px 10px" onkeydown="if(event.key===\'Enter\')addMilestone(\''+g.id+'\')"><button class="btn bp bsm" onclick="addMilestone(\''+g.id+'\')">+</button></div></div></div>';
+  }).join('')+'</div>';
+}
+
+// ── TASKS ─────────────────────────────────────────────────────────────────
+function setPri(p){curPri=p;['H','M','L'].forEach(function(x){var pp={H:'high',M:'medium',L:'low'}[x];var btn=G('pri'+x);btn.style.border='1px solid '+(pp==='high'?'var(--coral)':pp==='medium'?'var(--gold)':'var(--bdr)');btn.style.color=pp==='high'?'var(--coral)':pp==='medium'?'var(--gold)':'var(--soft)';btn.style.background=pp===p?(pp==='high'?'rgba(232,112,96,.15)':pp==='medium'?'rgba(240,188,82,.15)':'rgba(128,128,176,.1)'):'transparent';});}
+function addTask(){var v=G('taskInp').value.trim();if(!v)return;curUser.tasks.push({id:uid(),text:v,priority:curPri,done:false,date:tdStr()});G('taskInp').value='';saveStore();renderTasks();}
+function togTask(id){curUser.tasks=curUser.tasks.map(function(t){return t.id===id?Object.assign({},t,{done:!t.done}):t;});saveStore();renderTasks();}
+function delTask(id){curUser.tasks=curUser.tasks.filter(function(t){return t.id!==id;});saveStore();renderTasks();}
+function renderTasks(){
+  var td=tdStr(),mo=moStr();var vis=curUser.tasks;
+  if(tv==='daily')vis=curUser.tasks.filter(function(t){return t.date===td;});
+  else if(tv==='monthly')vis=curUser.tasks.filter(function(t){return t.date&&t.date.startsWith(mo);});
+  var pend=vis.filter(function(t){return !t.done;}),done=vis.filter(function(t){return t.done;});
+  var PC={high:'var(--coral)',medium:'var(--gold)',low:'var(--soft)'};
+  function row(t){return'<div class="card" style="display:flex;align-items:center;gap:9px;padding:11px 13px;margin-bottom:7px"><div style="width:4px;height:26px;border-radius:2px;background:'+PC[t.priority]+';flex-shrink:0"></div><button class="xb '+(t.done?'dn':'')+'" style="width:28px;height:28px;font-size:14px" onclick="togTask(\''+t.id+'\')">'+(t.done?'✕':'')+'</button><span class="f1" style="font-size:14px;color:'+(t.done?'var(--dim)':'var(--tx)')+';text-decoration:'+(t.done?'line-through':'none')+'">'+t.text+'</span><span style="color:'+PC[t.priority]+';font-size:11px">'+t.priority+'</span><button class="delbtn" onclick="delTask(\''+t.id+'\')">×</button></div>';}
+  var html='';
+  if(pend.length)html+='<div style="color:var(--soft);font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:9px">Pending · '+pend.length+'</div>'+pend.map(row).join('');
+  if(done.length)html+='<div style="color:var(--soft);font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin:14px 0 9px">Done · '+done.length+'</div><div style="opacity:.65">'+done.map(row).join('')+'</div>';
+  if(!vis.length)html='<div class="empty">No tasks for this period.</div>';
+  G('taskList').innerHTML=html;
+}
+
+// ── BOOKS ─────────────────────────────────────────────────────────────────
+function uploadBook(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){curUser.books.push({id:uid(),name:f.name.replace(/\.[^.]+$/,''),content:ev.target.result,curPage:0,added:tdStr()});saveStore();renderBooks();};r.readAsText(f);inp.value='';}
+function splitPages(text,sz){var cpp=sz==='large'?1200:sz==='small'?3000:2000;var out=[];for(var i=0;i<text.length;i+=cpp)out.push(text.slice(i,i+cpp));return out.length?out:[''];}
+function openBook(id){var b=curUser.books.find(function(b){return b.id===id;});if(!b)return;activeBook=id;bookPages=splitPages(b.content,curFS);curPage=b.curPage||0;G('bookLib').style.display='none';G('bookReader').style.display='flex';G('bookTitle').textContent=b.name;renderBookPage();}
+function closeBook(){G('bookLib').style.display='block';G('bookReader').style.display='none';activeBook=null;}
+function delBook(id){curUser.books=curUser.books.filter(function(b){return b.id!==id;});saveStore();renderBooks();}
+function setFS(sz){curFS=sz;['fsS','fsM','fsL'].forEach(function(id){G(id).style.color='var(--soft)';G(id).style.border='1px solid var(--bdr)';});var m={small:'fsS',medium:'fsM',large:'fsL'}[sz];G(m).style.color='var(--gold)';G(m).style.border='1px solid var(--gold)';if(activeBook){var b=curUser.books.find(function(b){return b.id===activeBook;});if(b){bookPages=splitPages(b.content,sz);if(curPage>=bookPages.length)curPage=0;renderBookPage();}}}
+function goPage(p){if(p<0||p>=bookPages.length)return;curPage=p;curUser.books=curUser.books.map(function(b){return b.id===activeBook?Object.assign({},b,{curPage:p}):b;});saveStore();renderBookPage();}
+function renderBookPage(){var sz={small:'14px',medium:'19px',large:'27px'}[curFS]||'19px';G('bookContent').style.fontSize=sz;G('bookContent').textContent=bookPages[curPage];G('pageInfo').textContent=(curPage+1)+' / '+bookPages.length;G('pgInp').value=curPage+1;G('pgTotal').textContent=bookPages.length;var pct=Math.round(((curPage+1)/bookPages.length)*100);G('bookProg').style.width=pct+'%';G('bookPct').textContent=pct+'% read';}
+function renderBooks(){var grid=G('bookGrid');if(!curUser.books.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">Library empty. Upload a book! ❧</div>';return;}grid.innerHTML=curUser.books.map(function(b){var pgs=splitPages(b.content,'medium');var pct=pgs.length>1?Math.round(((b.curPage||0)+1)/pgs.length*100):0;return'<div class="card" onclick="openBook(\''+b.id+'\')" style="cursor:pointer;text-align:center;position:relative"><div style="font-size:30px;margin-bottom:8px">📖</div><div style="font-family:\'Playfair Display\',serif;font-size:14px;font-weight:700;margin-bottom:3px">'+b.name+'</div><div style="color:var(--soft);font-size:11px;margin-bottom:9px">'+pgs.length+' pages</div>'+(pct>0?'<div class="pbar"><div class="pbf" style="width:'+pct+'%;background:var(--blue)"></div></div><div style="color:var(--blue);font-size:11px;text-align:right;margin-top:2px">'+pct+'%</div>':'')+'<button onclick="event.stopPropagation();delBook(\''+b.id+'\')" class="delbtn" style="position:absolute;top:10px;right:10px;font-size:17px">×</button></div>';}).join('');}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function saveName(){var v=G('setName').value.trim();if(!v)return;store.appName=v;saveStore();G('topAppName').textContent=v;G('loginAppTitle').textContent=v;var m=G('nameMsg');m.textContent='✓ Saved!';m.style.display='block';setTimeout(function(){m.style.display='none';},2000);}
+function savePw(){var cur=G('setCurPw').value,np=G('setNewPw').value,cf=G('setCfmPw').value;var m=G('pwMsg');m.style.display='block';if(cur!==curUser.pw){m.textContent='❌ Current password wrong';m.style.color='#e07070';return;}if(np.length<3){m.textContent='❌ Min 3 characters';m.style.color='#e07070';return;}if(np!==cf){m.textContent='❌ Passwords do not match';m.style.color='#e07070';return;}curUser.pw=np;saveStore();G('setCurPw').value='';G('setNewPw').value='';G('setCfmPw').value='';m.textContent='✓ Password updated!';m.style.color='var(--mint)';setTimeout(function(){m.style.display='none';},2500);}
+function confirmDeleteUser(){if(confirm('Delete your profile "'+curUser.name+'"? This cannot be undone.')){store.users=store.users.filter(function(u){return u.id!==curUser.id;});saveStore();doLock();}}
+</script>
+</body>
+</html>
